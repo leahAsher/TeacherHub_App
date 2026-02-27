@@ -22,22 +22,22 @@ const firebaseConfig = {
   appId: FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+// const app = initializeApp(firebaseConfig);
 
- const auth = initializeAuth(app, {
-   persistence: Platform.OS === 'web' 
-     ? browserLocalPersistence 
-     : getReactNativePersistence(ReactNativeAsyncStorage)
- });
+//  const auth = initializeAuth(app, {
+//    persistence: Platform.OS === 'web' 
+//      ? browserLocalPersistence 
+//      : getReactNativePersistence(ReactNativeAsyncStorage)
+//  });
 
- let db = null;
- try {
-   db = getFirestore(app);
- } catch (error) {
-   console.error('Failed to initialize Firestore:', error);
- }
+//  let db = null;
+//  try {
+//    db = getFirestore(app);
+//  } catch (error) {
+//    console.error('Failed to initialize Firestore:', error);
+//  }
 
- const getDb = () => db;
- const storage = getStorage(app);
+//  const getDb = () => db;
+//  const storage = getStorage(app);
 
-export { auth, db, storage, getDb };
+// export { auth, db, storage, getDb };

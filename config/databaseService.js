@@ -1,16 +1,16 @@
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  setDoc, 
-  addDoc, 
-  updateDoc, 
+import {
+  addDoc,
+  collection,
   deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
   query,
-  where
-} from 'firebase/firestore';
-import { db, getDb } from './firebase.config';
+  setDoc,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { getDb } from "./firebase.config";
 
 // Create a new document
 /**
@@ -24,7 +24,10 @@ import { db, getDb } from './firebase.config';
 export const createDocument = async (collectionName, data, docId) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
@@ -36,8 +39,11 @@ export const createDocument = async (collectionName, data, docId) => {
       return { success: true, id: docRef.id };
     }
   } catch (error) {
-    console.error('Firestore error:', error);
-    return { success: false, error: error.message || 'Unknown Firestore error' };
+    console.error("Firestore error:", error);
+    return {
+      success: false,
+      error: error.message || "Unknown Firestore error",
+    };
   }
 };
 
@@ -45,7 +51,10 @@ export const createDocument = async (collectionName, data, docId) => {
 export const getDocument = async (collectionName, docId) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
@@ -55,7 +64,7 @@ export const getDocument = async (collectionName, docId) => {
     if (docSnap.exists()) {
       return { success: true, data: { id: docSnap.id, ...docSnap.data() } };
     } else {
-      return { success: false, error: 'Document not found' };
+      return { success: false, error: "Document not found" };
     }
   } catch (error) {
     return { success: false, error: error.message };
@@ -66,7 +75,10 @@ export const getDocument = async (collectionName, docId) => {
 export const getAllDocuments = async (collectionName) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
@@ -85,7 +97,10 @@ export const getAllDocuments = async (collectionName) => {
 export const updateDocument = async (collectionName, docId, data) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
@@ -101,7 +116,10 @@ export const updateDocument = async (collectionName, docId, data) => {
 export const deleteDocument = async (collectionName, docId) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
@@ -113,14 +131,25 @@ export const deleteDocument = async (collectionName, docId) => {
 };
 
 // Query documents with a condition
-export const queryDocuments = async (collectionName, field, operator, value) => {
+export const queryDocuments = async (
+  collectionName,
+  field,
+  operator,
+  value,
+) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
-    const q = query(collection(firestore, collectionName), where(field, operator, value));
+    const q = query(
+      collection(firestore, collectionName),
+      where(field, operator, value),
+    );
     const querySnapshot = await getDocs(q);
     const documents = [];
     querySnapshot.forEach((doc) => {
@@ -136,17 +165,20 @@ export const queryDocuments = async (collectionName, field, operator, value) => 
 export const updateUserProfilePhoto = async (userId, photoURL) => {
   const firestore = getDb();
   if (!firestore) {
-    return { success: false, error: 'Firestore not initialized. See console for details.' };
+    return {
+      success: false,
+      error: "Firestore not initialized. See console for details.",
+    };
   }
 
   try {
-    await updateDoc(doc(firestore, 'users', userId), {
+    await updateDoc(doc(firestore, "users", userId), {
       profilePhoto: photoURL,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     return { success: true };
   } catch (error) {
-    console.error('Error updating profile photo:', error);
+    console.error("Error updating profile photo:", error);
     return { success: false, error: error.message };
   }
 };

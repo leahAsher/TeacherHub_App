@@ -1,9 +1,11 @@
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from './firebase.config';
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getStorage } from "./firebase.config";
 
 // Upload image to Firebase Storage
 export const uploadImage = async (uri, path) => {
   try {
+    const storage = getStorage();
+
     // Convert URI to blob
     const response = await fetch(uri);
     const blob = await response.blob();
@@ -19,13 +21,13 @@ export const uploadImage = async (uri, path) => {
 
     return { success: true, url: downloadURL };
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error("Error uploading image:", error);
     return { success: false, error: error.message };
   }
 };
 
 // Generate a unique filename for profile images
-export const generateProfileImagePath = (userId, userType = 'teacher') => {
+export const generateProfileImagePath = (userId, userType = "teacher") => {
   const timestamp = Date.now();
   const randomId = Math.random().toString(36).substring(2, 15);
   return `profile-images/${userType}/${userId}/${timestamp}_${randomId}.jpg`;

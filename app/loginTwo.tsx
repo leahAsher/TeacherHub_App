@@ -186,7 +186,7 @@ const LoginTwoScreen = () => {
               </View>
 
               <View style={styles.signUpContainer}>
-                <Text style={styles.signUpText}>Don't have an account? </Text>
+                <Text style={styles.signUpText}>Do not have an account? </Text>
                 <TouchableOpacity onPress={() => router.push("/registerTwo")}>
                   <Text style={styles.signUpLink}>Sign Up</Text>
                 </TouchableOpacity>

@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
-import {Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { loginUser } from "../config/authService";
 
@@ -17,7 +17,7 @@ const LoginScreen = () => {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
-  const [setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
  //field value
   const validateField = (field, value) => {
@@ -86,7 +86,6 @@ const LoginScreen = () => {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.container}>
-            
             <View style={styles.headerSection}>
               <Image
                 source={require("../assets/Teacherhub_logo.png")}
@@ -97,7 +96,6 @@ const LoginScreen = () => {
             </View>
 
             <View style={styles.formContainer}>
-
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Email Address</Text>
                 <TextInput
@@ -116,9 +114,14 @@ const LoginScreen = () => {
                     validateField("email", val);
                   }}
                   onFocus={() => setEmailFocused(true)}
-                  onBlur={() => { setEmailFocused(false); validateField("email", email); }}
+                  onBlur={() => {
+                    setEmailFocused(false);
+                    validateField("email", email);
+                  }}
                 />
-                {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
+                {errors.email ? (
+                  <Text style={styles.errorText}>{errors.email}</Text>
+                ) : null}
               </View>
 
               {/* Password Input */}
@@ -139,9 +142,14 @@ const LoginScreen = () => {
                     validateField("password", val);
                   }}
                   onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => { setPasswordFocused(false); validateField("password", password); }}
+                  onBlur={() => {
+                    setPasswordFocused(false);
+                    validateField("password", password);
+                  }}
                 />
-                {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
+                {errors.password ? (
+                  <Text style={styles.errorText}>{errors.password}</Text>
+                ) : null}
               </View>
 
               <TouchableOpacity style={styles.forgotPasswordContainer}>
@@ -149,11 +157,16 @@ const LoginScreen = () => {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.button}
+                style={[styles.button, loading && styles.buttonDisabled]}
                 onPress={handleLogin}
                 activeOpacity={0.8}
+                disabled={loading}
               >
-                <Text style={styles.buttonText}>Login</Text>
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.buttonText}>Login</Text>
+                )}
               </TouchableOpacity>
 
               <View style={styles.dividerContainer}>
@@ -163,12 +176,11 @@ const LoginScreen = () => {
               </View>
 
               <View style={styles.signUpContainer}>
-                <Text style={styles.signUpText}>Don't have an account? </Text>
+                <Text style={styles.signUpText}>Do not have an account? </Text>
                 <TouchableOpacity onPress={() => router.push("/register")}>
                   <Text style={styles.signUpLink}>Sign Up</Text>
                 </TouchableOpacity>
               </View>
-
             </View>
           </View>
         </ScrollView>

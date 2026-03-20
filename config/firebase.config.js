@@ -1,11 +1,12 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import { initializeApp } from "firebase/app";
+import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   browserLocalPersistence,
+  getAuth,
   getReactNativePersistence,
   initializeAuth,
 } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { Platform } from "react-native";
 
@@ -18,20 +19,38 @@ const firebaseConfig = {
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = initializeAuth(app, {
-  persistence:
-    Platform.OS === "web" ?
-      browserLocalPersistence
-    : getReactNativePersistence(ReactNativeAsyncStorage),
-});
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+const auth =
+  Platform.OS === "web"
+    ? getAuth(app)
+    : (() => {
+        try {
+          return initializeAuth(app, {
+            persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+          });
+        } catch {
+          return getAuth(app);
+        }
+      })();
 
 let db = null;
 let storage = null;
 
 const getDb = () => {
   if (!db) {
-    db = getFirestore(app);
+    if (Platform.OS === "web") {
+      db = getFirestore(app);
+    } else {
+      try {
+        db = initializeFirestore(app, {
+          experimentalForceLongPolling: true,
+          useFetchStreams: false,
+        });
+      } catch {
+        db = getFirestore(app);
+      }
+    }
   }
   return db;
 };

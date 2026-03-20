@@ -4,7 +4,6 @@ import {Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Te
 import { SafeAreaView } from "react-native-safe-area-context";
 import { registerUser } from "../config/authService";
 import { createDocument } from "../config/databaseService";
-import { initializeApp } from 'firebase/app';
 
 
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -19,18 +18,6 @@ const validateUsername = (username: string) => {
   if (username.trim().length > 20) return "Username must be at most 20 characters.";
   return null;
 };
-
-const firebaseConfig = {
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
-};
-
-const app = initializeApp(firebaseConfig);
-// const db = getFirestore(app);
 
 const SignupScreen = () => {
   const router = useRouter();

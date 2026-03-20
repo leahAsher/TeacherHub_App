@@ -14,9 +14,6 @@ import { getDb } from "./firebase.config";
 
 // Create a new document
 /**
- * Create a new document in Firestore. If `docId` is provided (string), the document
- * will be created with that ID using `setDoc`. If `docId` is `null` or `undefined`,
- * a new document will be added with an auto-generated ID using `addDoc`.
  * @param {string} collectionName
  * @param {Object} data
  * @param {string|null|undefined} [docId]
@@ -47,7 +44,7 @@ export const createDocument = async (collectionName, data, docId) => {
   }
 };
 
-// Get a single document
+// single document
 export const getDocument = async (collectionName, docId) => {
   const firestore = getDb();
   if (!firestore) {
@@ -71,7 +68,7 @@ export const getDocument = async (collectionName, docId) => {
   }
 };
 
-// Get all documents in a collection
+// Get documents in a collection
 export const getAllDocuments = async (collectionName) => {
   const firestore = getDb();
   if (!firestore) {
@@ -130,7 +127,7 @@ export const deleteDocument = async (collectionName, docId) => {
   }
 };
 
-// Query documents with a condition
+// search documents with a condition
 export const queryDocuments = async (
   collectionName,
   field,

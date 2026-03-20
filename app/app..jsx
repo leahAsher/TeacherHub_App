@@ -6,9 +6,7 @@ import {
   AlertCircle, Plus, Star, Phone, Mail, FileText
 } from "lucide-react-native";
 
-// ─────────────────────────────────────────────
-// STORAGE HELPERS (shared = true so both roles see same data)
-// ─────────────────────────────────────────────
+
 const db = {
   async get(key) {
     try {
@@ -28,9 +26,7 @@ function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
-// ─────────────────────────────────────────────
-// SHARED UI COMPONENTS
-// ─────────────────────────────────────────────
+//shared ui comp.
 const Btn = ({ children, onClick, variant = "primary", className = "", disabled = false }) => {
   const base = "px-4 py-2.5 rounded-lg font-semibold text-sm transition-all active:scale-95 flex items-center justify-center gap-2";
   const variants = {
@@ -137,9 +133,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// ─────────────────────────────────────────────
-// SIDE NAVIGATION MENU
-// ─────────────────────────────────────────────
+//side nav
 const SideMenu = ({ visible, onClose, currentUser, setCurrentPage, onLogout, onDeleteAccount }) => {
   const isTeacher = currentUser?.role === "teacher";
 
@@ -181,7 +175,7 @@ const SideMenu = ({ visible, onClose, currentUser, setCurrentPage, onLogout, onD
           <Badge color={isTeacher ? "blue" : "indigo"} className="mt-1">{isTeacher ? "Teacher" : "School"}</Badge>
         </div>
 
-        {/* Nav Items */}
+        {/* Nav items */}
         <div className="flex-1 overflow-y-auto p-3">
           {navItems.map(item => (
             <button key={item.page}
@@ -223,9 +217,7 @@ const SideMenu = ({ visible, onClose, currentUser, setCurrentPage, onLogout, onD
   );
 };
 
-// ─────────────────────────────────────────────
-// APP HEADER
-// ─────────────────────────────────────────────
+//header
 const AppHeader = ({ currentUser, onOpenMenu }) => (
   <div className="sticky top-0 z-40 bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm">
     <span className="font-extrabold text-blue-800 text-xl tracking-tight">TeacherHub</span>
@@ -237,9 +229,7 @@ const AppHeader = ({ currentUser, onOpenMenu }) => (
   </div>
 );
 
-// ─────────────────────────────────────────────
-// AUTH: LANDING / LOGIN / REGISTER
-// ─────────────────────────────────────────────
+//auth for landing, login, register
 const LandingPage = ({ setPage }) => (
   <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex flex-col items-center justify-center p-6">
     <div className="text-center mb-12">
@@ -333,7 +323,7 @@ const RegisterPage = ({ role, setPage, onLogin, setToast }) => {
     accounts.push(newUser);
     await db.set("th_accounts", accounts);
 
-    // Init empty profile
+    // empty profile
     if (isTeacher) {
       const profiles = await db.get("th_teacherProfiles") || [];
       profiles.push({ userId: newUser.id, name, email, subject: "", experience: "", education: "", availability: "", location: "", bio: "", certifications: [], phone: "", visible: true, offerTutoring: false });
@@ -389,9 +379,7 @@ const RegisterPage = ({ role, setPage, onLogin, setToast }) => {
   );
 };
 
-// ─────────────────────────────────────────────
-// TEACHER SCREENS
-// ─────────────────────────────────────────────
+//teacher scrn
 const TeacherHome = ({ currentUser, setCurrentPage, setSelectedJobId, setToast }) => {
   const [jobs, setJobs] = useState(null);
   const [search, setSearch] = useState("");
@@ -738,9 +726,7 @@ const TeacherSettings = ({ currentUser, setCurrentPage, setToast }) => {
   );
 };
 
-// ─────────────────────────────────────────────
-// SCHOOL SCREENS
-// ─────────────────────────────────────────────
+//school scrn
 const SchoolHome = ({ currentUser, setCurrentPage, setSelectedTeacherId, setToast }) => {
   const [teachers, setTeachers] = useState(null);
   const [search, setSearch] = useState("");
@@ -917,7 +903,7 @@ const UploadVacancy = ({ currentUser, setCurrentPage, setToast }) => {
     if (!form.title || !form.subject) { setToast({ message: "Position title and subject are required.", type: "error" }); return; }
     setSaving(true);
 
-    // get school name from profile
+    //school name from profile
     const schoolProfiles = await db.get("th_schoolProfiles") || [];
     const schoolProfile = schoolProfiles.find(p => p.userId === currentUser.id);
     const schoolName = schoolProfile?.name || currentUser.name;
@@ -1159,9 +1145,7 @@ const SchoolSettings = ({ currentUser, setCurrentPage, setToast }) => {
   );
 };
 
-// ─────────────────────────────────────────────
-// MAIN APP
-// ─────────────────────────────────────────────
+//main app
 export default function App() {
   const [authPage, setAuthPage] = useState("landing"); // landing | login | register-teacher | register-school
   const [currentUser, setCurrentUser] = useState(null); // null when not logged in
@@ -1210,7 +1194,7 @@ export default function App() {
     }
   };
 
-  // Not logged in → show auth screens
+  // Not logged in 
   if (!currentUser) {
     if (authPage === "landing") return (
       <>

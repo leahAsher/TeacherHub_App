@@ -43,12 +43,12 @@ export const resetPassword = async (email) => {
   }
 };
 
-// Listen to auth state changes
+// auth state changes
 export const onAuthStateChange = (callback) => {
   return onAuthStateChanged(auth, callback);
 };
 
-// Get current user
+//find current user
 export const getCurrentUser = () => {
   return auth.currentUser;
 };

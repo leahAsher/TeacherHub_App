@@ -30,7 +30,7 @@ const LoginTwoScreen = () => {
   };
   
   const app = initializeApp(firebaseConfig);
-  // const db = getFirestore(app);
+  //const db = getFirestore(app);
 
   const validateField = (field: "email" | "password", value: string) => {
     let error = "";
@@ -219,7 +219,6 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
 
-  // Header Section
   headerSection: {
     alignItems: "center",
     marginBottom: 40,

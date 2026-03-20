@@ -42,7 +42,6 @@ const LoginScreen = () => {
   };
 
   const handleLogin = async () => {
-    // Run all validations
     if (!validateAll()) {
       return;
     }
@@ -123,8 +122,7 @@ const LoginScreen = () => {
                   <Text style={styles.errorText}>{errors.email}</Text>
                 ) : null}
               </View>
-
-              {/* Password Input */}
+              
               <View style={styles.inputContainer}>
                 <Text style={styles.inputLabel}>Password</Text>
                 <TextInput

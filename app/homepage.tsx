@@ -111,7 +111,7 @@ const SideNavigationMenu = ({
         />
         <View style={styles.sideNavContainer}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/*Logo/Back Arr*/}
+            
             <View style={styles.sideNavHeader}>
               <TouchableOpacity onPress={onClose} style={styles.backArrow}>
                 <ArrowLeft color="#1E3A8A" size={24} />
@@ -644,7 +644,7 @@ const JobDetailsPage = ({
   );
 };
 
-// Settings for teachers
+
 const TeacherSettings = ({
   setCurrentPage,
   profileData,
@@ -953,16 +953,16 @@ const App = () => {
     setLoading(true);
     const user = getCurrentUser();
     
-    // Fetch Jobs
+    // Find Jobs
     const jobsRes = await getAllDocuments("jobs");
     if (jobsRes.success) setJobs(jobsRes.data || []);
 
     if (user) {
-      // Fetch Applications for this teacher
+      // Fid Applications for teacher
       const appsRes = await queryDocuments("applications", "teacherId", "==", user.uid);
       if (appsRes.success) setApplications(appsRes.data || []);
 
-      // Fetch Profile Data
+      // Find Profile Data
       const profRes = await getDocument("users", user.uid);
       if (profRes.success) setProfileData(profRes.data);
     }

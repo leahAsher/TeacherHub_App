@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import {
   ArrowLeft,
   BookOpen,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   Modal,
@@ -22,12 +24,16 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getCurrentUser, logoutUser } from "../config/authService";
-import { createDocument, getAllDocuments, getDocument, queryDocuments, updateDocument } from "../config/databaseService";
-import { useRouter } from "expo-router";
+import {
+  createDocument,
+  getAllDocuments,
+  getDocument,
+  queryDocuments,
+  updateDocument,
+} from "../config/databaseService";
 
 const { width } = Dimensions.get("window");
 const CONTENT_WIDTH = width > 700 ? 600 : "100%";
@@ -98,7 +104,6 @@ const SideNavigationMenu = ({
         />
         <View style={styles.sideNavContainer}>
           <ScrollView showsVerticalScrollIndicator={false}>
-            
             <View style={styles.sideNavHeader}>
               <TouchableOpacity onPress={onClose} style={styles.backArrow}>
                 <ArrowLeft color="#1E3A8A" size={24} />
@@ -117,7 +122,9 @@ const SideNavigationMenu = ({
                 <Text style={styles.uploadPhotoText}>Upload Photo</Text>
               </TouchableOpacity>
 
-              <Text style={styles.userName}>{user?.displayName || "Teacher"}</Text>
+              <Text style={styles.userName}>
+                {user?.displayName || "Teacher"}
+              </Text>
               <Text style={styles.userName}>{user?.displayName}</Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
             </View>
@@ -243,7 +250,6 @@ const StatCard = ({
   );
 };
 
-
 type JobCardProps = {
   job: any;
   onViewDetails: (jobId: string) => void;
@@ -257,8 +263,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails, onApply }) => (
         <Briefcase color="#2563EB" size={20} />
       </View>
       <View style={styles.jobHeaderText}>
-        <Text style={styles.jobTitle}>{job.title}</Text>
-        <Text style={styles.jobSchool}>{job.school}</Text>
+        <Text style={styles.jobTitle}>{job.position}</Text>
+        <Text style={styles.jobSchool}>{job.schoolName}</Text>
       </View>
     </View>
 
@@ -269,7 +275,7 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails, onApply }) => (
       </View>
       <View style={styles.jobDetailRow}>
         <Clock color="#64748B" size={14} />
-        <Text style={styles.jobDetailText}>{job.type.join(", ")}</Text>
+        <Text style={styles.jobDetailText}>{job.employmentType}</Text>
       </View>
     </View>
 
@@ -278,11 +284,13 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails, onApply }) => (
         <Text style={styles.jobTagText}>{job.requirements}</Text>
       </View>
       <View style={styles.jobTag}>
-        <Text style={styles.jobTagText}>Start: {job.startDate}</Text>
+        <Text style={styles.jobTagText}>Start: {job.deadline}</Text>
       </View>
     </View>
 
-    <Text style={styles.jobSalary}>{job.salary}</Text>
+    <Text style={styles.jobSalary}>
+      XAF {job.salaryMin} - {job.salaryMax}/month
+    </Text>
 
     <View style={styles.jobActions}>
       <PrimaryButton
@@ -302,7 +310,6 @@ const JobCard: React.FC<JobCardProps> = ({ job, onViewDetails, onApply }) => (
     </View>
   </View>
 );
-
 
 const HomeDashboard = ({
   setCurrentPage,
@@ -400,7 +407,6 @@ const HomeDashboard = ({
   );
 };
 
-
 const TeacherDashboard = ({
   setCurrentPage,
   applications,
@@ -424,7 +430,11 @@ const TeacherDashboard = ({
 
       <View style={styles.statsGrid}>
         <StatCard title="Profile Completion" value="50%" color="green" />
-        <StatCard title="Active Applications" value={applications.length.toString()} color="indigo" />
+        <StatCard
+          title="Active Applications"
+          value={applications.length.toString()}
+          color="indigo"
+        />
         <StatCard title="Interview Requests" value="0" color="yellow" />
         <StatCard title="Service Earnings " value="XAF0.0" color="pink" />
       </View>
@@ -437,7 +447,8 @@ const TeacherDashboard = ({
           <View style={styles.alertContent}>
             <Text style={styles.alertTitle}>Profile Status</Text>
             <Text style={styles.alertSubtitle}>
-              Make sure your profile is up to date to stay visible to top schools.
+              Make sure your profile is up to date to stay visible to top
+              schools.
             </Text>
           </View>
         </View>
@@ -481,15 +492,21 @@ const TeacherDashboard = ({
                 <View
                   style={[
                     styles.appStatus,
-                    app.status.includes("Interview") ? styles.statusYellow
-                    : app.status === "Pending" ? styles.statusBlue
-                    : styles.statusRed,
+                    app.status.includes("Interview")
+                      ? styles.statusYellow
+                      : app.status === "Pending"
+                        ? styles.statusBlue
+                        : styles.statusRed,
                   ]}
                 >
                   <Text style={styles.appStatusText}>{app.status}</Text>
                 </View>
                 <Text style={styles.appDate}>
-                  {app.createdAt?.seconds ? new Date(app.createdAt.seconds * 1000).toLocaleDateString() : "Recently"}
+                  {app.createdAt?.seconds
+                    ? new Date(
+                        app.createdAt.seconds * 1000,
+                      ).toLocaleDateString()
+                    : "Recently"}
                 </Text>
               </View>
             </View>
@@ -543,13 +560,19 @@ const JobDetailsPage = ({
   };
 
   const jobDetails = {
-    description: job.description || `We are seeking an experienced ${job.position || job.title} to join our dynamic team. You will be responsible for delivering engaging lessons to students and fostering a positive learning environment.`,
-    responsibilities: job.responsibilities ? (typeof job.responsibilities === 'string' ? job.responsibilities.split('\n') : job.responsibilities) : [
-      "Develop and deliver curriculum-aligned lessons",
-      "Assess student performance and provide feedback",
-      "Collaborate with other educators",
-      "Maintain a positive learning environment",
-    ],
+    description:
+      job.description ||
+      `We are seeking an experienced ${job.position || job.title} to join our dynamic team. You will be responsible for delivering engaging lessons to students and fostering a positive learning environment.`,
+    responsibilities: job.responsibilities
+      ? typeof job.responsibilities === "string"
+        ? job.responsibilities.split("\n")
+        : job.responsibilities
+      : [
+          "Develop and deliver curriculum-aligned lessons",
+          "Assess student performance and provide feedback",
+          "Collaborate with other educators",
+          "Maintain a positive learning environment",
+        ],
   };
 
   return (
@@ -565,36 +588,50 @@ const JobDetailsPage = ({
           <Text style={styles.backButtonText}>← Back to Jobs</Text>
         </TouchableOpacity>
 
-          <View style={styles.jobDetailsHeader}>
-            <View style={styles.jobDetailsIcon}>
-              <Briefcase color="#2563EB" size={28} />
-            </View>
-            <Text style={styles.jobDetailsTitle}>{job.position || job.title}</Text>
-            <Text style={styles.jobDetailsSchool}>{job.schoolName || job.school}</Text>
+        <View style={styles.jobDetailsHeader}>
+          <View style={styles.jobDetailsIcon}>
+            <Briefcase color="#2563EB" size={28} />
           </View>
+          <Text style={styles.jobDetailsTitle}>
+            {job.position || job.title}
+          </Text>
+          <Text style={styles.jobDetailsSchool}>
+            {job.schoolName || job.school}
+          </Text>
+        </View>
 
-          <View style={styles.card}>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Location:</Text>
-              <Text style={styles.detailValue}>{job.location}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Job Type:</Text>
-              <Text style={styles.detailValue}>{job.employmentType || (Array.isArray(job.type) ? job.type.join(", ") : job.type)}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Deadline / Start Date:</Text>
-              <Text style={styles.detailValue}>{job.deadline || job.startDate}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Salary:</Text>
-              <Text style={styles.detailValue}>{job.salary || (job.salaryMin ? `XAF ${job.salaryMin} - ${job.salaryMax}` : "")}</Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Requirements:</Text>
-              <Text style={styles.detailValue}>{job.requirements}</Text>
-            </View>
+        <View style={styles.card}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Location:</Text>
+            <Text style={styles.detailValue}>{job.location}</Text>
           </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Job Type:</Text>
+            <Text style={styles.detailValue}>
+              {job.employmentType ||
+                (Array.isArray(job.type) ? job.type.join(", ") : job.type)}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Deadline / Start Date:</Text>
+            <Text style={styles.detailValue}>
+              {job.deadline || job.startDate}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Salary:</Text>
+            <Text style={styles.detailValue}>
+              {job.salary ||
+                (job.salaryMin
+                  ? `XAF ${job.salaryMin} - ${job.salaryMax}`
+                  : "")}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>Requirements:</Text>
+            <Text style={styles.detailValue}>{job.requirements}</Text>
+          </View>
+        </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>About This Position</Text>
@@ -631,7 +668,6 @@ const JobDetailsPage = ({
   );
 };
 
-
 const TeacherSettings = ({
   setCurrentPage,
   profileData,
@@ -640,8 +676,12 @@ const TeacherSettings = ({
   profileData: any;
 }) => {
   const [activeTab, setActiveTab] = useState("profile");
-  const [jobSearchVisible, setJobSearchVisible] = useState(profileData?.jobSearchVisible ?? true);
-  const [serviceVisible, setServiceVisible] = useState(profileData?.serviceVisible ?? true);
+  const [jobSearchVisible, setJobSearchVisible] = useState(
+    profileData?.jobSearchVisible ?? true,
+  );
+  const [serviceVisible, setServiceVisible] = useState(
+    profileData?.serviceVisible ?? true,
+  );
   const [formData, setFormData] = useState({
     username: profileData?.username || "",
     specialty: profileData?.specialty || "",
@@ -684,7 +724,9 @@ const TeacherSettings = ({
               placeholder="Enter your full name"
               placeholderTextColor="#94A3B8"
               value={formData.username}
-              onChangeText={(text) => setFormData({ ...formData, username: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, username: text })
+              }
             />
           </View>
           <View style={styles.inputGroup}>
@@ -694,7 +736,9 @@ const TeacherSettings = ({
               placeholder="e.g., Mathematics Teacher"
               placeholderTextColor="#94A3B8"
               value={formData.specialty}
-              onChangeText={(text) => setFormData({ ...formData, specialty: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, specialty: text })
+              }
             />
           </View>
           <View style={styles.inputGroup}>
@@ -728,7 +772,9 @@ const TeacherSettings = ({
               placeholder="Full-time, Part-time, Contract"
               placeholderTextColor="#94A3B8"
               value={formData.preferredJobType}
-              onChangeText={(text) => setFormData({ ...formData, preferredJobType: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, preferredJobType: text })
+              }
             />
           </View>
           <View style={styles.inputGroup}>
@@ -739,7 +785,9 @@ const TeacherSettings = ({
               keyboardType="numeric"
               placeholderTextColor="#94A3B8"
               value={formData.minSalary}
-              onChangeText={(text) => setFormData({ ...formData, minSalary: text })}
+              onChangeText={(text) =>
+                setFormData({ ...formData, minSalary: text })
+              }
             />
           </View>
         </View>
@@ -939,14 +987,20 @@ const App = () => {
   const fetchData = async () => {
     setLoading(true);
     const user = getCurrentUser();
-    
+
     // Find Jobs
     const jobsRes = await getAllDocuments("jobs");
     if (jobsRes.success) setJobs(jobsRes.data || []);
+    console.log("Fetched Jobs:", jobsRes.data);
 
     if (user) {
       // Fid Applications for teacher
-      const appsRes = await queryDocuments("applications", "teacherId", "==", user.uid);
+      const appsRes = await queryDocuments(
+        "applications",
+        "teacherId",
+        "==",
+        user.uid,
+      );
       if (appsRes.success) setApplications(appsRes.data || []);
 
       // Find Profile Data
@@ -959,12 +1013,24 @@ const App = () => {
   const renderPage = () => {
     if (currentPage.startsWith("JobDetails-")) {
       const jobId = currentPage.split("-")[1];
-      return <JobDetailsPage jobId={jobId} setCurrentPage={setCurrentPage} jobs={jobs} />;
+      return (
+        <JobDetailsPage
+          jobId={jobId}
+          setCurrentPage={setCurrentPage}
+          jobs={jobs}
+        />
+      );
     }
 
     switch (currentPage) {
       case "Home":
-        return <HomeDashboard setCurrentPage={setCurrentPage} jobs={jobs} loading={loading} />;
+        return (
+          <HomeDashboard
+            setCurrentPage={setCurrentPage}
+            jobs={jobs}
+            loading={loading}
+          />
+        );
       case "TeacherDashboard":
         return (
           <TeacherDashboard
@@ -974,9 +1040,20 @@ const App = () => {
           />
         );
       case "TeacherSettings":
-        return <TeacherSettings setCurrentPage={setCurrentPage} profileData={profileData} />;
+        return (
+          <TeacherSettings
+            setCurrentPage={setCurrentPage}
+            profileData={profileData}
+          />
+        );
       default:
-        return <HomeDashboard setCurrentPage={setCurrentPage} jobs={jobs} loading={loading} />;
+        return (
+          <HomeDashboard
+            setCurrentPage={setCurrentPage}
+            jobs={jobs}
+            loading={loading}
+          />
+        );
     }
   };
 

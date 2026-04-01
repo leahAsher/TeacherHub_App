@@ -125,8 +125,7 @@ const SideNavigationMenu = ({
               <Text style={styles.userName}>
                 {user?.displayName || "Teacher"}
               </Text>
-              <Text style={styles.userName}>{user?.displayName}</Text>
-              <Text style={styles.userEmail}>{user?.email}</Text>
+              <Text style={styles.userEmail}>{user?.email || ""}</Text>
             </View>
 
             <View style={styles.menuItems}>

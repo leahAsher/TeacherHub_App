@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import {
   ArrowLeft,
   BookOpen,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react-native";
 import React, { ReactNode, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   Modal,
@@ -23,12 +25,10 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
-  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getCurrentUser, logoutUser } from "../config/authService";
-import { createDocument, getAllDocuments, getDocument, queryDocuments, updateDocument } from "../config/databaseService";
-import { useRouter } from "expo-router";
+import { createDocument, getDocument, queryDocuments, updateDocument } from "../config/databaseService";
 
 
 const { width } = Dimensions.get("window");
@@ -117,8 +117,8 @@ const SchoolSideNavigationMenu = ({
                 <Text style={styles.uploadPhotoText}>Upload Photo</Text>
               </TouchableOpacity>
 
-              <Text style={styles.userName}>{getCurrentUser()?.displayName || "School"}</Text>
-              <Text style={styles.userEmail}>{getCurrentUser()?.email}</Text>
+              <Text style={styles.userName}>{getCurrentUser()?.displayName || ""}</Text>
+              <Text style={styles.userEmail}>{getCurrentUser()?.email || ""}</Text>
             </View>
 
             <View style={styles.menuItems}>
@@ -254,9 +254,11 @@ const StatCard = ({
 const UploadVacancy = ({
   setCurrentPage,
   onRefresh,
+  profileData,
 }: {
   setCurrentPage?: (page: string) => void;
   onRefresh: () => void;
+  profileData?: any;
 }) => {
   const user = getCurrentUser();
   const [formData, setFormData] = useState({
@@ -281,7 +283,7 @@ const UploadVacancy = ({
     const jobData = {
       ...formData,
       schoolId: user.uid,
-      schoolName: user.displayName || "A School",
+      schoolName: user.displayName || profileData?.schoolName,
       createdAt: new Date(),
     };
 
@@ -482,21 +484,36 @@ const TeacherDetails = ({
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
 
-  const handleScheduleInterview = () => {
+const handleScheduleInterview = async () => {
     if (!interviewDate || !interviewTime) {
-      Alert.alert(
-        "Error",
-        "Please select both date and time for the interview",
-      );
+      Alert.alert("Error", "Please select both date and time for the interview");
       return;
     }
-    Alert.alert(
-      "Success",
-      `Video interview scheduled with ${teacher.name} on ${interviewDate} at ${interviewTime}`,
-    );
-    setShowScheduleInterview(false);
-    setInterviewDate("");
-    setInterviewTime("");
+    const user = getCurrentUser();
+    if (!user) {
+      Alert.alert("Error", "User not logged in");
+      return;
+    }
+    const interviewData = {
+      teacherId: teacher.id,
+      teacherName: teacher.name,
+      schoolId: user.uid,
+      schoolName: user.displayName,
+      date: interviewDate,
+      time: interviewTime,
+      datetime: new Date(interviewDate + " " + interviewTime),
+      status: "scheduled",
+      createdAt: new Date(),
+    };
+    const result = await createDocument("interviews", interviewData);
+    if (result.success) {
+      Alert.alert("Success", "Interview scheduled and saved!");
+      setShowScheduleInterview(false);
+      setInterviewDate("");
+      setInterviewTime("");
+    } else {
+      Alert.alert("Error", "Failed to schedule interview: " + result.error);
+    }
   };
 
   return (
@@ -512,7 +529,7 @@ const TeacherDetails = ({
         <View style={styles.modernCard}>
           <View style={styles.teacherHeader}>
             <View style={styles.modernTeacherAvatar}>
-              <Text style={styles.avatarText}>{teacher.name.charAt(0)}</Text>
+              <Text style={styles.avatarText}>{(teacher.name || "T").charAt(0)}</Text>
             </View>
             <View style={styles.teacherHeaderInfo}>
               <Text style={styles.modernTeacherName}>{teacher.name}</Text>
@@ -575,7 +592,7 @@ const TeacherDetails = ({
             <Text style={styles.modernSectionTitle}>Certifications</Text>
           </View>
           <View style={styles.certGrid}>
-            {teacher.certifications.map((cert: string, index: number) => (
+{(teacher.certifications || []).map((cert: string, index: number) => (
               <View key={index} style={styles.modernCertBadge}>
                 <Text style={styles.modernCertText}>✓ {cert}</Text>
               </View>
@@ -1119,7 +1136,7 @@ const HomeDashboard = ({
                   <Text style={styles.ratingBadgeText}>★ {teacher.rating || "5.0"}</Text>
                 </View>
               </View>
-              <Text style={styles.modernFeatureTag}>📍 {teacher.location || "Location not specified"}</Text>
+              <Text style={styles.modernFeatureTag}>📍 {teacher.location || "Yaounde, Cameroon"}</Text>
               <Text style={styles.modernFeatureTag}>
                 ⏰ {teacher.preferredJobType || teacher.availability || "Available"}
               </Text>
@@ -1201,7 +1218,7 @@ const App = () => {
       case "SchoolSettings":
         return <SchoolSettings setCurrentPage={setCurrentPage} profileData={profileData} />;
       case "UploadVacancy":
-        return <UploadVacancy setCurrentPage={setCurrentPage} onRefresh={fetchData} />;
+        return <UploadVacancy setCurrentPage={setCurrentPage} onRefresh={fetchData} profileData={profileData} />;
       case "TeacherDetails":
         return (
           <TeacherDetails
